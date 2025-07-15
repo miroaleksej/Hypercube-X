@@ -5,7 +5,7 @@
 <h3 align="center">Supported by</h3>
 <p align="center">
   <a href="https://quantumfund.org">
-    <img src="https://img.shields.io/badge/Quantum_Innovation_Grant-2023-blue" height="30">
+    <img src="https://img.shields.io/badge/Quantum_Innovation_Grant-2025-blue" height="30">
   </a>
   <a href="https://opencollective.com/qpp">
     <img src="https://img.shields.io/badge/Open_Collective-Support_Us-green" height="30">
