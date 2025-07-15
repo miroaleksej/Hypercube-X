@@ -108,9 +108,9 @@ multiverse.visualize_multiverse()
 
 ## 🤝 Как внести вклад
 1. Форкните репозиторий
-2. Создайте ветку (`git checkout -b feature/AmazingFeature`)
-3. Сделайте коммит (`git commit -m 'Add some AmazingFeature'`)
-4. Запушьте изменения (`git push origin feature/AmazingFeature`)
+2. Создайте ветку (`git checkout -b miroaleksej/Hypercube-X`)
+3. Сделайте коммит (`git commit -m 'Add some miroaleksej/Hypercube-X'`)
+4. Запушьте изменения (`git push origin miroaleksej/Hypercube-X`)
 5. Откройте Pull Request
 
 Требования к коду:
