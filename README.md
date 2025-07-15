@@ -1,6 +1,6 @@
 # Hypercube-X: Квантово-топологическая система моделирования физических законов
 
-![image](https://github.com/user-attachments/assets/35e3dca6-5166-4adf-b637-fe7392a06793)
+![image](https://github.com/user-attachments/assets/46492ffb-93d1-47ee-b159-fba0e9b8a149)
 
 <h3 align="center">Supported by</h3>
 <p align="center">
@@ -246,3 +246,6 @@ system.visualize_topology()
 - Оптимизация вычислительных методов
 
 Перед внесением значительных изменений, пожалуйста, откройте issue для обсуждения.
+
+
+
