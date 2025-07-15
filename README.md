@@ -1,6 +1,8 @@
 ### README for Physics Hypercube System (PHCS) v.3.0
 
-![PHCS Banner](https://via.placeholder.com/1200x400?text=Physics+Hypercube+System+v.3.0)
+![PHCS Banner]
+<img width="1024" height="1024" alt="image" src="https://github.com/user-attachments/assets/541b1a5a-f79a-4f7b-afcd-30faf15d984c" />
+
 
 ## 🔬 О проекте
 **Physics Hypercube System (PHCS)** - революционный фреймворк для моделирования физических систем в многомерных пространствах. Система интегрирует:
