@@ -123,4 +123,16 @@ multiverse.visualize_multiverse()
 
 ---
 
+## 📧 Контакты
+- **Автор:** Миронов Алексей
+- **Email:** miro-aleksej@yandex.ru
+- **Telegram:** @---------
+- **Quantum Community:** 
+
+---
+
+ Статистика посещаемости
+![Visitors](https://api.visitorbadge.io/api/visitors?path=https://github.com/yourrepo&label=Visitors&countColor=%23263759)
+
+
 *Проект разработан для исследований в области теоретической физики и вычислительной математики*
