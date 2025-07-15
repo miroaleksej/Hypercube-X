@@ -1,5 +1,30 @@
 # Hypercube-X: Квантово-топологическая система моделирования физических законов
 
+<p align="center">
+  <a href="https://www.python.org/" target="_blank" rel="noreferrer">
+    <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/python/python-original.svg" alt="python" width="80" height="80"/>
+  </a>
+  <a href="https://pytorch.org/" target="_blank" rel="noreferrer">
+    <img src="https://www.vectorlogo.zone/logos/pytorch/pytorch-icon.svg" alt="pytorch" width="80" height="80"/>
+  </a>
+  <a href="https://qiskit.org/" target="_blank" rel="noreferrer">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/0/01/Qiskit-Logo.svg" alt="qiskit" width="80" height="80"/>
+  </a>
+  <a href="https://numpy.org/" target="_blank" rel="noreferrer">
+    <img src="https://numpy.org/images/logo.svg" alt="numpy" width="80" height="80"/>
+  </a>
+  <a href="https://www.tensorflow.org/" target="_blank" rel="noreferrer">
+    <img src="https://www.vectorlogo.zone/logos/tensorflow/tensorflow-icon.svg" alt="tensorflow" width="80" height="80"/>
+  </a>
+</p>
+
+<h1 align="center">
+  🌌 Quantum Photon Processor (QPP)
+</h1>
+<h3 align="center">
+  Advanced Photonic Quantum Computing Emulator
+</h3>
+
 <img width="1024" height="1024" alt="image" src="https://github.com/user-attachments/assets/0eaf81ce-794f-4953-af20-0c52e6c628b7" />
 
 Hypercube-X — это революционная система для моделирования физических законов в многомерных пространствах с использованием передовых методов квантовых вычислений, топологического анализа и мультиверсного моделирования. Проект реализует концепцию "физического гиперкуба", где каждое измерение представляет физический параметр, а значения в гиперкубе описывают законы природы в данной точке параметрического пространства.
