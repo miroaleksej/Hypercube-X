@@ -1,18 +1,6 @@
 # Hypercube-X: Квантово-топологическая система моделирования физических законов
 
-
-<h3 align="center">Connect with Quantum Community</h3>
-<p align="center">
-  <a href="https://twitter.com/QuantumQPP">
-    <img src="https://img.shields.io/badge/Twitter-1DA1F2?style=for-the-badge&logo=twitter&logoColor=white">
-  </a>
-  <a href="https://discord.gg/yourinvite">
-    <img src="https://img.shields.io/badge/Discord-7289DA?style=for-the-badge&logo=discord&logoColor=white">
-  </a>
-  <a href="https://arxiv.org/search/?query=Quantum+Photon+Processor">
-    <img src="https://img.shields.io/badge/arXiv-B31B1B?style=for-the-badge&logo=arxiv&logoColor=white">
-  </a>
-</p>
+![image](https://github.com/user-attachments/assets/35e3dca6-5166-4adf-b637-fe7392a06793)
 
 <h3 align="center">Supported by</h3>
 <p align="center">
