@@ -224,7 +224,7 @@ system.visualize_topology()
 
 
 ## 📜 Лицензия
-Данный проект распространяется под лицензией **Quantum Innovation License v1.0** - см. [LICENSE](https://github.com/miroaleksej/Hypercube-X/blob/main/LICENSE)
+Данный проект распространяется под лицензией **Quantum Innovation License v1.0** - см. [LICENSE](https://github.com/miroaleksej/Quantum-Photon-Processor-Enhanced-QPP-E-/blob/main/QUANTUM%20INNOVATION%20LICENSE.md)
 
 ## 📧 Контакты
 - **Автор:** Миронов Алексей
