@@ -197,6 +197,27 @@ system.visualize_topology()
   howpublished = {\url{https://github.com/yourusername/hypercube-x}}
 }
 ```
+## 📚 Документация
+Полная документация доступна в директории [docs](/docs):
+- [Архитектура системы](/docs/ARCHITECTURE.md)
+- [API Reference](/docs/API.md)
+- [Криптографические протоколы](/docs/CRYPTO.md)
+- [Примеры использования](/examples/)
+
+
+## 📜 Лицензия
+Данный проект распространяется под лицензией **Quantum Innovation License v1.0** - см. [LICENSE](/LICENSE)
+
+## 📧 Контакты
+- **Автор:** Миронов Алексей
+- **Email:** miro-aleksej@yandex.ru
+- **Telegram:** @---------
+- **Quantum Community:** 
+
+---
+
+ Статистика посещаемости
+![Visitors](https://api.visitorbadge.io/api/visitors?path=https://github.com/yourrepo&label=Visitors&countColor=%23263759)
 
 ## Вклад в проект
 
