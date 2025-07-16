@@ -1,4 +1,3 @@
-```python:Hypercube-X.py
 import numpy as np
 import torch
 import gpytorch
