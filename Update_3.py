@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 Hypercube-X Quantum Topological Evolution Suite v3.0
 Реализация перспектив развития:
