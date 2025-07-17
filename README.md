@@ -1,4 +1,4 @@
-# Hypercube-X: Квантово-топологическая система моделирования физических законов
+# [Hypercube-X](https://github.com/miroaleksej/Hypercube-X/blob/main/HyperCube-X.py): Квантово-топологическая система моделирования физических законов
 
 ## **Для правильной работы системы обязательно установите [hypercube_patch.py](https://github.com/miroaleksej/Hypercube-X/blob/main/hypercube_patch.md).**
 
