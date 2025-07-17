@@ -4,6 +4,8 @@
 
 Временно приостанавливаю работу над всеми проектами в связи с отсутствием заинтересованности и обратной связи с Вашей стороны.
 
+<img width="1024" height="1024" alt="image" src="https://github.com/user-attachments/assets/02c71162-fda7-48cd-b7c6-53ab8235d196" />
+
 ![image](https://github.com/user-attachments/assets/46492ffb-93d1-47ee-b159-fba0e9b8a149)
 
 <h3 align="center">Supported by</h3>
