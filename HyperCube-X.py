@@ -38,6 +38,14 @@ from sklearn.preprocessing import PolynomialFeatures
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error
 from giotto_tda.diagrams import BettiCurve
+import torch.nn as nn
+from torch.autograd import Function
+from qiskit.circuit import Parameter, ParameterVector
+from qiskit.quantum_info import Statevector, partial_trace
+from typing import Dict, List, Tuple, Optional, Union
+from scipy.sparse import csr_matrix
+from scipy.sparse.csgraph import shortest_path
+from tqdm import tqdm
 
 # ===================================================================
 # Класс GPUComputeManager
@@ -291,14 +299,14 @@ class ExactGPModel(gpytorch.models.ExactGP):
         return gpytorch.distributions.MultivariateNormal(mean_x, covar_x)
 
 # ===================================================================
-# Класс QuantumTopologyCore (Hypercube-X)
+# Класс TopologicalQuantumCore (Hypercube-X)
 # ===================================================================
-class QuantumTopologyCore:
+class TopologicalQuantumCore:
     """Квантовое ядро для топологических вычислений"""
     def __init__(self, n_qubits=8):
         self.n_qubits = n_qubits
         self.backend = Aer.get_backend('statevector_simulator')
-        self.logger = logging.getLogger("QuantumTopologyCore")
+        self.logger = logging.getLogger("TopologicalQuantumCore")
         
     def create_entanglement_circuit(self, topology_data):
         """Создает квантовую схему, отражающую топологию системы"""
@@ -324,16 +332,16 @@ class QuantumTopologyCore:
         return result.get_statevector()
 
 # ===================================================================
-# Класс TopologyEvolutionEngine (Hypercube-X)
+# Класс TopologyDynamicsEngine (Hypercube-X)
 # ===================================================================
-class TopologyEvolutionEngine:
+class TopologyDynamicsEngine:
     """Двигатель эволюции топологии"""
     def __init__(self, hypercube_system):
         self.system = hypercube_system
         self.topology_history = deque(maxlen=10)
-        self.quantum_core = QuantumTopologyCore()
+        self.quantum_core = TopologicalQuantumCore()
         self.current_circuit = None
-        self.logger = logging.getLogger("TopologyEvolutionEngine")
+        self.logger = logging.getLogger("TopologyDynamicsEngine")
         
     def initialize_topology(self):
         """Инициализация начальной топологии"""
@@ -432,84 +440,84 @@ class TopologyEvolutionEngine:
             child.topology_engine.evolve_topology()
 
 # ===================================================================
-# Класс MultiverseInterface (Hypercube-X)
+# Класс TopologicalEnsembleInterface (Hypercube-X)
 # ===================================================================
-class MultiverseInterface:
-    """Интерфейс для работы с мультивселенными"""
+class TopologicalEnsembleInterface:
+    """Интерфейс для работы с ансамблем систем"""
     def __init__(self, base_hypercube):
         self.base = base_hypercube
-        self.parallel_universes = {}
-        self.logger = logging.getLogger("MultiverseInterface")
+        self.parallel_systems = {}
+        self.logger = logging.getLogger("TopologicalEnsembleInterface")
     
-    def create_parallel_universe(self, universe_id, modification_rules):
-        """Создает параллельную вселенную с модифицированными законами"""
-        new_universe = DynamicPhysicsHypercube(
+    def create_parallel_system(self, system_id, modification_rules):
+        """Создает параллельную систему с модифицированными законами"""
+        new_system = DynamicPhysicsHypercube(
             self.base.dimensions.copy(),
             resolution=self.base.resolution
         )
         
         for dim, rule in modification_rules.items():
             if rule['type'] == 'shift':
-                min_val, max_val = new_universe.dimensions[dim]
+                min_val, max_val = new_system.dimensions[dim]
                 shift = rule['amount']
-                new_universe.dimensions[dim] = (min_val + shift, max_val + shift)
+                new_system.dimensions[dim] = (min_val + shift, max_val + shift)
             elif rule['type'] == 'scale':
-                min_val, max_val = new_universe.dimensions[dim]
+                min_val, max_val = new_system.dimensions[dim]
                 center = (min_val + max_val) / 2
                 new_min = center + (min_val - center) * rule['factor']
                 new_max = center + (max_val - center) * rule['factor']
-                new_universe.dimensions[dim] = (new_min, new_max)
+                new_system.dimensions[dim] = (new_min, new_max)
         
-        self.parallel_universes[universe_id] = new_universe
-        self.logger.info(f"Created parallel universe '{universe_id}'")
-        return new_universe
+        self.parallel_systems[system_id] = new_system
+        self.logger.info(f"Created parallel system '{system_id}'")
+        return new_system
     
-    def compare_universes(self, universe_id1, universe_id2):
-        """Сравнивает две параллельные вселенные"""
-        uni1 = self.parallel_universes[universe_id1]
-        uni2 = self.parallel_universes[universe_id2]
+    def compare_systems(self, system_id1, system_id2):
+        """Сравнивает две параллельные системы"""
+        sys1 = self.parallel_systems[system_id1]
+        sys2 = self.parallel_systems[system_id2]
         
-        betti1 = uni1.topological_invariants.get('betti_numbers', {})
-        betti2 = uni2.topological_invariants.get('betti_numbers', {})
+        betti1 = sys1.topological_invariants.get('betti_numbers', {})
+        betti2 = sys2.topological_invariants.get('betti_numbers', {})
         
-        coherence1 = self._measure_universe_coherence(uni1)
-        coherence2 = self._measure_universe_coherence(uni2)
+        coherence1 = self._measure_system_coherence(sys1)
+        coherence2 = self._measure_system_coherence(sys2)
         
         return {
             'betti_difference': {k: betti1.get(k,0) - betti2.get(k,0) for k in set(betti1)|set(betti2)},
             'coherence_difference': coherence1 - coherence2,
-            'stability_ratio': self._calculate_stability_ratio(uni1, uni2)
+            'stability_ratio': self._calculate_stability_ratio(sys1, sys2)
         }
     
-    def _measure_universe_coherence(self, universe):
-        """Измеряет квантовую когерентность вселенной"""
-        if not universe.quantum_model:
+    def _measure_system_coherence(self, system):
+        """Измеряет квантовую когерентность системы"""
+        if not system.quantum_model:
             return 0
-        return len(universe.critical_points) / (len(universe.known_points) + 1e-5)
+        return len(system.critical_points) / (len(system.known_points) + 1e-5)
     
-    def _calculate_stability_ratio(self, uni1, uni2):
-        """Вычисляет относительную стабильность вселенных"""
-        entropy1 = self._calculate_entropy_metrics(uni1)['shannon_entropy']
-        entropy2 = self._calculate_entropy_metrics(uni2)['shannon_entropy']
+    def _calculate_stability_ratio(self, sys1, sys2):
+        """Вычисляет относительную стабильность систем"""
+        entropy1 = self._calculate_entropy_metrics(sys1)['shannon_entropy']
+        entropy2 = self._calculate_entropy_metrics(sys2)['shannon_entropy']
         
         return entropy2 / (entropy1 + 1e-10)
 
 # ===================================================================
-# Класс HypercubeXOptimizer (Hypercube-X)
+# Класс TopologicalHypercubeOptimizer (Hypercube-X)
 # ===================================================================
-class HypercubeXOptimizer:
+class TopologicalHypercubeOptimizer:
     def __init__(self, hypercube_system):
         """
         Инициализация оптимизатора с системой Hypercube-X
         :param hypercube_system: экземпляр DynamicPhysicsHypercube
         """
         self.system = hypercube_system
-        self.logger = logging.getLogger("HypercubeXOptimizer")
+        self.logger = logging.getLogger("TopologicalHypercubeOptimizer")
         self.dimensionality_graph = nx.Graph()
         
         # Автонастройка параметров оптимизации
         self._auto_configure()
-        self.logger.info("HypercubeXOptimizer initialized")
+        self.logger.info("TopologicalHypercubeOptimizer initialized")
 
     def _auto_configure(self):
         """Автоматическая настройка параметров оптимизации"""
@@ -584,7 +592,7 @@ class HypercubeXOptimizer:
             self.logger.error(f"Dimensionality reduction failed: {str(e)}")
             return None
 
-    def holographic_boundary_analysis(self):
+    def boundary_topology_analysis(self):
         """
         Расширенный анализ граничных данных с использованием квантово-топологических методов
         Возвращает словарь с ключевыми характеристиками
@@ -595,20 +603,20 @@ class HypercubeXOptimizer:
         connectivity = self._calculate_quantum_connectivity()
         analysis['quantum_connectivity'] = connectivity
         
-        # 2. Топологические дефекты с мультиверсионным анализом
-        defects = self._detect_multiverse_defects()
-        analysis['multiverse_defects'] = defects
+        # 2. Топологические дефекты с ансамблевым анализом
+        defects = self._detect_ensemble_defects()
+        analysis['ensemble_defects'] = defects
         
         # 3. Энтропийные характеристики с учетом квантовой когерентности
         entropy = self._calculate_quantum_entropy()
         analysis['quantum_entropy'] = entropy
         
-        # 4. Анализ стабильности мультивселенных
-        if hasattr(self.system, 'multiverse_interface'):
-            stability = self._analyze_multiverse_stability()
-            analysis['multiverse_stability'] = stability
+        # 4. Анализ стабильности ансамбля систем
+        if hasattr(self.system, 'topological_ensemble_interface'):
+            stability = self._analyze_ensemble_stability()
+            analysis['ensemble_stability'] = stability
         
-        self.logger.info("Advanced holographic boundary analysis completed")
+        self.logger.info("Advanced boundary topology analysis completed")
         return analysis
 
     def _calculate_quantum_connectivity(self):
@@ -651,14 +659,14 @@ class HypercubeXOptimizer:
         entropy = -np.sum(eigenvalues * np.log(eigenvalues))
         return entropy
 
-    def _detect_multiverse_defects(self):
-        """Обнаружение топологических дефектов с учетом параллельных вселенных"""
+    def _detect_ensemble_defects(self):
+        """Обнаружение топологических дефектов с учетом ансамбля систем"""
         defects = {'monopoles': [], 'strings': [], 'domain_walls': []}
         
         if not self.system.critical_points:
             return defects
             
-        # Кластеризация с учетом мультиверса
+        # Кластеризация с учетом ансамбля
         points = np.array([cp['point'] for cp in self.system.critical_points])
         values = np.array([cp['value'] for cp in self.system.critical_points])
         
@@ -684,13 +692,13 @@ class HypercubeXOptimizer:
             else:
                 defect_type = 'domain_walls'
             
-            # Анализ стабильности в параллельных вселенных
-            if hasattr(self.system, 'multiverse_interface'):
+            # Анализ стабильности в ансамбле систем
+            if hasattr(self.system, 'topological_ensemble_interface'):
                 stability = []
-                for universe_id in self.system.multiverse_interface.parallel_universes:
-                    universe = self.system.multiverse_interface.parallel_universes[universe_id]
+                for system_id in self.system.topological_ensemble_interface.parallel_systems:
+                    system = self.system.topological_ensemble_interface.parallel_systems[system_id]
                     for point in cluster_points:
-                        stability.append(self._measure_point_stability(point, universe))
+                        stability.append(self._measure_point_stability(point, system))
                 avg_stability = np.mean(stability)
             else:
                 avg_stability = 1.0
@@ -702,17 +710,17 @@ class HypercubeXOptimizer:
         
         return defects
 
-    def _measure_point_stability(self, point, universe):
-        """Измерение стабильности точки в параллельной вселенной"""
+    def _measure_point_stability(self, point, system):
+        """Измерение стабильности точки в параллельной системе"""
         try:
-            # Получаем значение в основной вселенной
+            # Получаем значение в основной системе
             main_value = self.system.physical_query_dict(
                 {dim: point[i] for i, dim in enumerate(self.system.dim_names)}
             )
             
-            # Получаем значение в параллельной вселенной
-            parallel_value = universe.physical_query_dict(
-                {dim: point[i] for i, dim in enumerate(universe.dim_names)}
+            # Получаем значение в параллельной системе
+            parallel_value = system.physical_query_dict(
+                {dim: point[i] for i, dim in enumerate(system.dim_names)}
             )
             
             # Вычисляем относительную стабильность
@@ -730,9 +738,9 @@ class HypercubeXOptimizer:
         if self.system.quantum_model:
             entropy_metrics['quantum_entropy'] = self._calculate_quantum_coherence_entropy()
         
-        # Энтропия мультивселенной
-        if hasattr(self.system, 'multiverse_interface'):
-            entropy_metrics['multiverse_entropy'] = self._calculate_multiverse_entropy()
+        # Энтропия ансамбля систем
+        if hasattr(self.system, 'topological_ensemble_interface'):
+            entropy_metrics['ensemble_entropy'] = self._calculate_ensemble_entropy()
         
         return entropy_metrics
 
@@ -758,25 +766,25 @@ class HypercubeXOptimizer:
         except:
             return 0
 
-    def _calculate_multiverse_entropy(self):
-        """Расчет энтропии мультивселенной"""
-        universe_ids = list(self.system.multiverse_interface.parallel_universes.keys())
-        if len(universe_ids) < 2:
+    def _calculate_ensemble_entropy(self):
+        """Расчет энтропии ансамбля систем"""
+        system_ids = list(self.system.topological_ensemble_interface.parallel_systems.keys())
+        if len(system_ids) < 2:
             return 0
             
-        # Сравнение вселенных попарно
+        # Сравнение систем попарно
         divergences = []
-        for i in range(len(universe_ids)):
-            for j in range(i+1, len(universe_ids)):
-                comparison = self.system.multiverse_interface.compare_universes(
-                    universe_ids[i], universe_ids[j]
+        for i in range(len(system_ids)):
+            for j in range(i+1, len(system_ids)):
+                comparison = self.system.topological_ensemble_interface.compare_systems(
+                    system_ids[i], system_ids[j]
                 )
                 divergence = 1 - comparison['stability_ratio']
                 divergences.append(divergence)
         
         return np.mean(divergences) if divergences else 0
 
-    def quantum_entanglement_optimization(self, backend='simulator', depth=None):
+    def topological_quantum_optimization(self, backend='simulator', depth=None):
         """
         Квантовая оптимизация через запутывание состояний
         с адаптацией под текущую топологию системы
@@ -878,9 +886,9 @@ class HypercubeXOptimizer:
         # Перестраиваем GP модель с новыми значениями
         self.system._build_gaussian_process()
 
-    def emergent_property_detection(self, threshold=0.15):
+    def collective_behavior_detection(self, threshold=0.15):
         """
-        Обнаружение эмерджентных свойств с учетом мультиверсных взаимодействий
+        Обнаружение коллективных свойств с учетом ансамблевых взаимодействий
         """
         emergent_properties = []
         
@@ -893,27 +901,27 @@ class HypercubeXOptimizer:
                 'description': 'Сильные нелинейные взаимодействия с топологической структурой'
             })
         
-        # 2. Критические точки с мультиверсной стабильностью
+        # 2. Критические точки с ансамблевой стабильностью
         if self.system.critical_points and len(self.system.critical_points) > 3:
             clusters = self._cluster_critical_points()
             if len(set(clusters)) > 1:
                 stability = self._measure_critical_point_stability(clusters)
                 emergent_properties.append({
-                    'type': 'multiverse_phase_clusters',
+                    'type': 'ensemble_phase_clusters',
                     'count': len(set(clusters)),
                     'stability': stability,
-                    'description': 'Кластеры фазовых переходов с мультиверсной стабильностью'
+                    'description': 'Кластеры фазовых переходов с ансамблевой стабильностью'
                 })
         
-        # 3. Квантовая когерентность в мультивселенной
+        # 3. Квантовая когерентность в ансамбле
         quantum_coherence = self._measure_quantum_coherence()
         if quantum_coherence > threshold:
-            multiverse_coherence = self._measure_multiverse_coherence()
+            ensemble_coherence = self._measure_ensemble_coherence()
             emergent_properties.append({
-                'type': 'multiverse_quantum_coherence',
+                'type': 'ensemble_quantum_coherence',
                 'coherence': quantum_coherence,
-                'multiverse_coherence': multiverse_coherence,
-                'description': 'Квантовая когерентность, сохраняющаяся в мультивселенной'
+                'ensemble_coherence': ensemble_coherence,
+                'description': 'Квантовая когерентность, сохраняющаяся в ансамбле систем'
             })
         
         # 4. Топологическая эмерджентность
@@ -930,8 +938,8 @@ class HypercubeXOptimizer:
         return emergent_properties
 
     def _measure_critical_point_stability(self, clusters):
-        """Измерение стабильности критических точек в мультивселенной"""
-        if not hasattr(self.system, 'multiverse_interface'):
+        """Измерение стабильности критических точек в ансамбле"""
+        if not hasattr(self.system, 'topological_ensemble_interface'):
             return 1.0
             
         stability_scores = []
@@ -944,30 +952,30 @@ class HypercubeXOptimizer:
             
             cluster_stability = []
             for point in cluster_points:
-                for universe_id in self.system.multiverse_interface.parallel_universes:
-                    universe = self.system.multiverse_interface.parallel_universes[universe_id]
-                    cluster_stability.append(self._measure_point_stability(point, universe))
+                for system_id in self.system.topological_ensemble_interface.parallel_systems:
+                    system = self.system.topological_ensemble_interface.parallel_systems[system_id]
+                    cluster_stability.append(self._measure_point_stability(point, system))
             
             stability_scores.append(np.mean(cluster_stability))
         
         return np.mean(stability_scores) if stability_scores else 1.0
 
-    def _measure_multiverse_coherence(self):
-        """Измерение квантовой когерентности в мультивселенной"""
-        if not hasattr(self.system, 'multiverse_interface'):
+    def _measure_ensemble_coherence(self):
+        """Измерение квантовой когерентности в ансамбле"""
+        if not hasattr(self.system, 'topological_ensemble_interface'):
             return 0
             
         coherence_scores = []
-        for universe_id in self.system.multiverse_interface.parallel_universes:
-            universe = self.system.multiverse_interface.parallel_universes[universe_id]
-            coherence = self._measure_quantum_coherence_for_universe(universe)
+        for system_id in self.system.topological_ensemble_interface.parallel_systems:
+            system = self.system.topological_ensemble_interface.parallel_systems[system_id]
+            coherence = self._measure_quantum_coherence_for_system(system)
             coherence_scores.append(coherence)
         
         return np.mean(coherence_scores) if coherence_scores else 0
 
-    def _measure_quantum_coherence_for_universe(self, universe):
-        """Измерение квантовой когерентности для конкретной вселенной"""
-        if not universe.quantum_model:
+    def _measure_quantum_coherence_for_system(self, system):
+        """Измерение квантовой когерентности для конкретной системы"""
+        if not system.quantum_model:
             return 0
         
         try:
@@ -975,86 +983,86 @@ class HypercubeXOptimizer:
             ref_circuit.h(0)
             ref_circuit.cx(0, 1)
             
-            quantum_state = universe.quantum_model.quantum_instance.execute(ref_circuit).result().get_statevector()
+            quantum_state = system.quantum_model.quantum_instance.execute(ref_circuit).result().get_statevector()
             fidelity = state_fidelity(quantum_state, ref_circuit)
             return fidelity
         except:
             return 0
 
-    def philosophical_constraint_integration(self, constraint_type='causal'):
+    def fundamental_constraint_integration(self, constraint_type='causal'):
         """
-        Интеграция философских ограничений с динамической адаптацией
+        Интеграция фундаментальных ограничений с динамической адаптацией
         """
         # Применяем ограничение
         if constraint_type == 'causal':
             self.system.physical_constraint = self._causal_constraint
         elif constraint_type == 'deterministic':
             self.system.physical_constraint = self._deterministic_constraint
-        elif constraint_type == 'holographic':
-            self.system.physical_constraint = self._holographic_constraint
-        elif constraint_type == 'multiverse_consistent':
-            self.system.physical_constraint = self._multiverse_consistency_constraint
+        elif constraint_type == 'topological':
+            self.system.physical_constraint = self._topological_constraint
+        elif constraint_type == 'ensemble_consistent':
+            self.system.physical_constraint = self._ensemble_consistency_constraint
         
-        self.logger.info(f"Applied {constraint_type} philosophical constraint")
+        self.logger.info(f"Applied {constraint_type} fundamental constraint")
         
         # Эволюционируем топологию под новое ограничение
         self.system.topology_engine.evolve_topology()
 
-    def _multiverse_consistency_constraint(self, params):
+    def _ensemble_consistency_constraint(self, params):
         """
-        Ограничение согласованности мультивселенной: значения должны быть
-        согласованы между параллельными вселенными
+        Ограничение согласованности ансамбля: значения должны быть
+        согласованы между параллельными системами
         """
-        if not hasattr(self.system, 'multiverse_interface'):
+        if not hasattr(self.system, 'topological_ensemble_interface'):
             return True
             
         main_value = self.system.physical_query_dict(params)
         if np.isnan(main_value):
             return False
             
-        for universe_id in self.system.multiverse_interface.parallel_universes:
-            universe = self.system.multiverse_interface.parallel_universes[universe_id]
-            uni_value = universe.physical_query_dict(params)
+        for system_id in self.system.topological_ensemble_interface.parallel_systems:
+            system = self.system.topological_ensemble_interface.parallel_systems[system_id]
+            sys_value = system.physical_query_dict(params)
             
-            if np.isnan(uni_value) or abs(main_value - uni_value) > 0.1 * abs(main_value):
+            if np.isnan(sys_value) or abs(main_value - sys_value) > 0.1 * abs(main_value):
                 return False
                 
         return True
 
-    def multiverse_guided_optimization(self, target_properties, num_universes=5):
+    def ensemble_guided_optimization(self, target_properties, num_systems=5):
         """
-        Оптимизация через создание и анализ параллельных вселенных
+        Оптимизация через создание и анализ ансамбля систем
         """
-        if not hasattr(self.system, 'multiverse_interface'):
-            self.logger.warning("Multiverse interface not available")
+        if not hasattr(self.system, 'topological_ensemble_interface'):
+            self.logger.warning("Topological ensemble interface not available")
             return None
             
-        # Создаем параллельные вселенные
-        for i in range(num_universes):
+        # Создаем параллельные системы
+        for i in range(num_systems):
             modification_rules = self._generate_modification_rules()
-            universe_id = f"optimization_{i}"
-            self.system.multiverse_interface.create_parallel_universe(
-                universe_id, modification_rules)
+            system_id = f"optimization_{i}"
+            self.system.topological_ensemble_interface.create_parallel_system(
+                system_id, modification_rules)
         
-        # Оцениваем вселенные на соответствие целевым свойствам
-        best_universe = None
+        # Оцениваем системы на соответствие целевым свойствам
+        best_system = None
         best_score = -np.inf
         
-        for universe_id, universe in self.system.multiverse_interface.parallel_universes.items():
-            if universe_id.startswith("optimization_"):
-                score = self._evaluate_universe(universe, target_properties)
+        for system_id, system in self.system.topological_ensemble_interface.parallel_systems.items():
+            if system_id.startswith("optimization_"):
+                score = self._evaluate_system(system, target_properties)
                 if score > best_score:
                     best_score = score
-                    best_universe = universe
+                    best_system = system
         
-        # Переносим лучшие точки в основную вселенную
-        if best_universe:
-            self._transfer_knowledge(best_universe)
-            return best_universe
+        # Переносим лучшие точки в основную систему
+        if best_system:
+            self._transfer_knowledge(best_system)
+            return best_system
         return None
 
     def _generate_modification_rules(self):
-        """Генерация правил модификации для параллельной вселенной"""
+        """Генерация правил модификации для параллельной системы"""
         rules = {}
         for dim in self.system.dim_names:
             if np.random.rand() > 0.7:  # 30% chance to modify a dimension
@@ -1070,50 +1078,50 @@ class HypercubeXOptimizer:
                     rules[dim] = {'type': 'invert'}
         return rules
 
-    def _evaluate_universe(self, universe, target_properties):
-        """Оценка вселенной на соответствие целевым свойствам"""
+    def _evaluate_system(self, system, target_properties):
+        """Оценка системы на соответствие целевым свойствам"""
         score = 0
         
         # Соответствие топологии
         if 'betti_numbers' in target_properties:
-            universe.calculate_topological_invariants()
+            system.calculate_topological_invariants()
             betti_match = 0
             for dim, target_val in target_properties['betti_numbers'].items():
-                universe_val = universe.topological_invariants['betti_numbers'].get(int(dim), 0)
-                betti_match += 1 - abs(target_val - universe_val) / (target_val + 1)
+                system_val = system.topological_invariants['betti_numbers'].get(int(dim), 0)
+                betti_match += 1 - abs(target_val - system_val) / (target_val + 1)
             score += betti_match
         
         # Соответствие симметриям
         if 'symmetry_level' in target_properties:
-            universe.find_symmetries()
-            symmetry_match = 1 - abs(len(universe.symmetries) - target_properties['symmetry_level']) / 10
+            system.find_symmetries()
+            symmetry_match = 1 - abs(len(system.symmetries) - target_properties['symmetry_level']) / 10
             score += symmetry_match
         
         # Соответствие квантовой когерентности
         if 'quantum_coherence' in target_properties:
-            coherence = self._measure_quantum_coherence_for_universe(universe)
+            coherence = self._measure_quantum_coherence_for_system(system)
             coherence_match = 1 - abs(coherence - target_properties['quantum_coherence'])
             score += coherence_match
         
         return score
 
-    def _transfer_knowledge(self, source_universe):
-        """Перенос знаний из параллельной вселенной в основную"""
+    def _transfer_knowledge(self, source_system):
+        """Перенос знаний из параллельной системы в основную"""
         # Перенос критических точек
-        for cp in source_universe.critical_points:
+        for cp in source_system.critical_points:
             self.system.critical_points.append(cp)
         
         # Перенос точек данных
-        for point, value in zip(source_universe.known_points, source_universe.known_values):
+        for point, value in zip(source_system.known_points, source_system.known_values):
             params = {dim: point[i] for i, dim in enumerate(self.system.dim_names)}
             self.system.add_known_point(params, value)
         
         # Перенос симметрий
-        for dim, sym_data in source_universe.symmetries.items():
+        for dim, sym_data in source_system.symmetries.items():
             if dim not in self.system.symmetries:
                 self.system.symmetries[dim] = sym_data
         
-        self.logger.info(f"Transferred knowledge from parallel universe")
+        self.logger.info(f"Transferred knowledge from parallel system")
 
     def topology_guided_optimization(self, target_betti):
         """
@@ -1126,7 +1134,7 @@ class HypercubeXOptimizer:
         self.system.topology_engine.evolve_topology()
         
         # Квантовая оптимизация на новой топологии
-        self.quantum_entanglement_optimization()
+        self.topological_quantum_optimization()
         
         return self.system.topological_invariants['betti_numbers']
 
@@ -1265,9 +1273,9 @@ class HypercubeXOptimizer:
                 return False
         return True
 
-    def _holographic_constraint(self, params):
-        """Проверка голографического принципа"""
-        if not self.system.holographic_compression:
+    def _topological_constraint(self, params):
+        """Проверка топологического соответствия"""
+        if not self.system.topological_compression:
             return True
         
         estimated_value = self.system._estimate_from_topology(
@@ -1316,8 +1324,8 @@ class PhysicsHypercubeSystem:
         self.quantum_backend = None
         self.quantum_model = None
         
-        # Голографическое представление
-        self.holographic_compression = False
+        # Топологическое представление
+        self.topological_compression = False
         self.boundary_data = {}
         
         # Расширенная система измерений
@@ -1769,12 +1777,12 @@ class PhysicsHypercubeSystem:
     
     # ---------------------- НОВЫЕ МЕТОДЫ РАСШИРЕНИЙ ----------------------
     
-    def compress_to_boundary(self, compression_ratio=0.8):
+    def topological_compression(self, compression_ratio=0.8):
         """
-        Голографическое сжатие данных по аналогии с AdS/CFT соответствием
+        Топологическое сжатие данных с сохранением граничной информации
         Сохраняет только граничные данные и топологические инварианты
         """
-        self.holographic_compression = True
+        self.topological_compression = True
         
         # Вычисление топологических инвариантов
         self.calculate_topological_invariants()
@@ -1808,7 +1816,7 @@ class PhysicsHypercubeSystem:
         Восстановление данных из граничного представления
         с использованием топологических инвариантов
         """
-        if not self.holographic_compression:
+        if not self.topological_compression:
             self.logger.warning("Hypercube is not in compressed state")
             return
         
@@ -1846,13 +1854,13 @@ class PhysicsHypercubeSystem:
         self.known_points.extend(reconstructed_points)
         self.known_values.extend(reconstructed_values)
         
-        self.holographic_compression = False
+        self.topological_compression = False
         self._build_gaussian_process()
         self.logger.info(f"Reconstructed {new_points} points from boundary data")
     
     def _estimate_from_topology(self, point):
         """Оценка значения на основе топологических инвариантов"""
-        # Простейшая реализация - взвешенная сумма расстояний до критических точек
+        # Взвешенная сумма расстояний до критических точек
         total_weight = 0.0
         weighted_sum = 0.0
         
@@ -2117,15 +2125,15 @@ class PhysicsHypercubeSystem:
                 return False
         return True
 
-    def set_philosophical_constraint(self, constraint_type):
-        """Установка философского ограничения"""
+    def set_fundamental_constraint(self, constraint_type):
+        """Установка фундаментального ограничения"""
         if constraint_type == 'causality':
             self.physical_constraint = self._causal_constraint
         elif constraint_type == 'determinism':
             self.physical_constraint = self._deterministic_constraint
         else:
-            raise ValueError(f"Unknown philosophical constraint: {constraint_type}")
-        self.logger.info(f"Applied {constraint_type} philosophical constraint")
+            raise ValueError(f"Unknown fundamental constraint: {constraint_type}")
+        self.logger.info(f"Applied {constraint_type} fundamental constraint")
 
     def calculate_universal_limits(self):
         """Расчет фундаментальных пределов системы по Бекенштейну"""
@@ -2483,22 +2491,22 @@ class PhysicsHypercubeSystem:
     
     def create_optimizer(self):
         """Создание оптимизатора для этого гиперкуба"""
-        return HypercubeXOptimizer(self)
+        return TopologicalHypercubeOptimizer(self)
     
-    def apply_philosophical_constraints(self, constraint_type='causal'):
-        """Применение философских ограничений через оптимизатор"""
+    def apply_fundamental_constraints(self, constraint_type='causal'):
+        """Применение фундаментальных ограничений через оптимизатор"""
         optimizer = self.create_optimizer()
-        optimizer.philosophical_constraint_integration(constraint_type)
+        optimizer.fundamental_constraint_integration(constraint_type)
     
-    def detect_emergent_properties(self, threshold=0.15):
-        """Обнаружение эмерджентных свойств"""
+    def detect_collective_behavior(self, threshold=0.15):
+        """Обнаружение коллективных свойств"""
         optimizer = self.create_optimizer()
-        return optimizer.emergent_property_detection(threshold)
+        return optimizer.collective_behavior_detection(threshold)
     
     def optimize_with_quantum_entanglement(self, depth=3):
         """Квантовая оптимизация через запутывание состояний"""
         optimizer = self.create_optimizer()
-        return optimizer.quantum_entanglement_optimization(depth=depth)
+        return optimizer.topological_quantum_optimization(depth=depth)
 
 # ===================================================================
 # Класс DynamicPhysicsHypercube (Hypercube-X)
@@ -2507,10 +2515,10 @@ class DynamicPhysicsHypercube(PhysicsHypercubeSystem):
     """Динамически эволюционирующая система гиперкуба"""
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.topology_engine = TopologyEvolutionEngine(self)
+        self.topology_engine = TopologyDynamicsEngine(self)
         self.phase_transition_depth = 0
         self.logger = logging.getLogger("DynamicHypercube")
-        self.multiverse_interface = MultiverseInterface(self)
+        self.topological_ensemble_interface = TopologicalEnsembleInterface(self)
         
     def add_known_point(self, point, value):
         """Расширенное добавление точки с динамической адаптацией"""
@@ -2536,7 +2544,7 @@ class DynamicPhysicsHypercube(PhysicsHypercubeSystem):
             self.quantum_model = None
             self._build_gaussian_process()
         
-        self.create_holographic_memory()
+        self.create_topological_snapshot()
     
     def adaptive_dimensionality_shift(self):
         """Адаптивное изменение размерности пространства"""
@@ -2544,13 +2552,13 @@ class DynamicPhysicsHypercube(PhysicsHypercubeSystem):
         
         if betti_1 > 5:
             self.logger.info("Activating dimensional compression")
-            self.compress_to_boundary(compression_ratio=0.6)
+            self.topological_compression(compression_ratio=0.6)
         else:
             self.logger.info("Activating dimensional expansion")
             self.topology_engine.calculate_topology()
     
-    def create_holographic_memory(self):
-        """Создает голографическую память текущего состояния"""
+    def create_topological_snapshot(self):
+        """Создает топологический снимок текущего состояния"""
         snapshot = {
             'dimensions': self.dimensions.copy(),
             'topological_invariants': self.topological_invariants.copy(),
@@ -2562,20 +2570,20 @@ class DynamicPhysicsHypercube(PhysicsHypercubeSystem):
         cctx = zstd.ZstdCompressor(level=3)
         compressed = cctx.compress(json.dumps(snapshot).encode())
         
-        if not hasattr(self, 'holographic_memory'):
-            self.holographic_memory = []
-        self.holographic_memory.append(compressed)
+        if not hasattr(self, 'topological_memory'):
+            self.topological_memory = []
+        self.topological_memory.append(compressed)
         
-        self.logger.info("Holographic memory created")
+        self.logger.info("Topological snapshot created")
     
     def restore_topology_state(self, index=-1):
-        """Восстанавливает состояние топологии из голографической памяти"""
-        if not hasattr(self, 'holographic_memory') or not self.holographic_memory:
-            self.logger.warning("No holographic memory available")
+        """Восстанавливает состояние топологии из топологической памяти"""
+        if not hasattr(self, 'topological_memory') or not self.topological_memory:
+            self.logger.warning("No topological memory available")
             return
         
         dctx = zstd.ZstdDecompressor()
-        snapshot = json.loads(dctx.decompress(self.holographic_memory[index]).decode())
+        snapshot = json.loads(dctx.decompress(self.topological_memory[index]).decode())
         
         self.topological_invariants = snapshot['topological_invariants']
         self.critical_points = snapshot['critical_points']
@@ -2592,13 +2600,13 @@ def create_hypercube_x(dimensions, resolution=100):
     """Фабрика для создания Hypercube-X системы"""
     system = DynamicPhysicsHypercube(dimensions, resolution)
     system.topology_engine.initialize_topology()
-    optimizer = HypercubeXOptimizer(system)
-    multiverse = MultiverseInterface(system)
+    optimizer = TopologicalHypercubeOptimizer(system)
+    ensemble = TopologicalEnsembleInterface(system)
     
     return {
         'system': system,
         'optimizer': optimizer,
-        'multiverse': multiverse
+        'ensemble': ensemble
     }
 
 # ===================================================================
@@ -2609,16 +2617,16 @@ if __name__ == "__main__":
     print("Инициализация системы Hypercube-X")
     print("="*50)
     
-    # Создание мультивселенной физических законов
-    physics_multiverse = create_hypercube_x({
+    # Создание ансамбля физических законов
+    physics_ensemble = create_hypercube_x({
         'gravity': (1e-11, 1e-8),
         'quantum_scale': (1e-35, 1e-10),
         'time': (0, 1e17)
     })
     
-    system = physics_multiverse['system']
-    optimizer = physics_multiverse['optimizer']
-    multiverse = physics_multiverse['multiverse']
+    system = physics_ensemble['system']
+    optimizer = physics_ensemble['optimizer']
+    ensemble = physics_ensemble['ensemble']
     
     # Добавление точки, вызывающей фазовый переход
     system.add_known_point({'gravity': 1e-35, 'quantum_scale': 1e-18, 'time': 1e10}, 8.2)
@@ -2629,28 +2637,267 @@ if __name__ == "__main__":
         'quantum_coherence': 0.9
     })
     
-    # Создание параллельной вселенной
-    parallel_uni = multiverse.create_parallel_universe("strong_gravity", {
+    # Создание параллельной системы
+    parallel_sys = ensemble.create_parallel_system("strong_gravity", {
         'gravity': {'type': 'scale', 'factor': 1000}
     })
     
-    # Сравнение вселенных
-    comparison = multiverse.compare_universes("base", "strong_gravity")
+    # Сравнение систем
+    comparison = ensemble.compare_systems("base", "strong_gravity")
     print(f"Stability ratio: {comparison['stability_ratio']:.2f}")
     
     # Визуализация топологии
     system.visualize_topology()
     
     # Квантовая оптимизация
-    optimizer.quantum_entanglement_optimization()
+    optimizer.topological_quantum_optimization()
     
-    # Обнаружение эмерджентных свойств
-    emergent_props = optimizer.emergent_property_detection()
+    # Обнаружение коллективных свойств
+    emergent_props = optimizer.detect_collective_behavior()
     print(f"Detected emergent properties: {len(emergent_props)}")
     
-    # Применение философских ограничений
-    optimizer.philosophical_constraint_integration('causal')
+    # Применение фундаментальных ограничений
+    optimizer.fundamental_constraint_integration('causal')
     
     print("\n" + "="*50)
     print("Демонстрация Hypercube-X завершена")
     print("="*50)
+
+# ===================================================================
+# Класс DifferentiableTopology (для топологического квантования)
+# ===================================================================
+class DifferentiableTopology(Function):
+    """Реализация дифференцируемой топологии с автоматическим дифференцированием"""
+    
+    @staticmethod
+    def forward(ctx, X: torch.Tensor, homology_dims: List[int] = [0, 1, 2]):
+        """
+        Прямой проход: вычисление персистентных диаграмм
+        X: входные данные формы [batch_size, n_points, n_features]
+        """
+        ctx.homology_dims = homology_dims
+        diagrams = []
+        
+        # Вычисляем персистентные гомологии для каждого элемента батча
+        for batch in X.detach().numpy():
+            vr = VietorisRipsPersistence(homology_dimensions=homology_dims)
+            diagram = vr.fit_transform([batch])
+            diagrams.append(diagram[0])
+            
+        ctx.save_for_backward(X)
+        ctx.diagrams = diagrams
+        
+        # Возвращаем тензор с информацией о персистенции
+        persistence_tensor = torch.zeros((len(diagrams), len(homology_dims)), dtype=torch.float32)
+        
+        for i, diagram in enumerate(diagrams):
+            for j, dim in enumerate(homology_dims):
+                if len(diagram[dim]) > 0:
+                    persistence = diagram[dim][:,1] - diagram[dim][:,0]
+                    persistence_tensor[i,j] = np.mean(persistence)
+                    
+        return persistence_tensor
+    
+    @staticmethod
+    def backward(ctx, grad_output: torch.Tensor):
+        """
+        Обратный проход: вычисление градиентов через конечные разности
+        """
+        X, = ctx.saved_tensors
+        grad_input = torch.zeros_like(X)
+        epsilon = 1e-5
+        
+        # Численное вычисление градиента
+        for i in range(X.shape[0]):  # По батчам
+            for j in range(X.shape[1]):  # По точкам
+                for k in range(X.shape[2]):  # По признакам
+                    X_plus = X.clone()
+                    X_plus[i,j,k] += epsilon
+                    
+                    X_minus = X.clone()
+                    X_minus[i,j,k] -= epsilon
+                    
+                    # Прямой проход для возмущенных данных
+                    persistence_plus = DifferentiableTopology.forward(ctx, X_plus)
+                    persistence_minus = DifferentiableTopology.forward(ctx, X_minus)
+                    
+                    # Конечная разность
+                    diff = (persistence_plus - persistence_minus) / (2 * epsilon)
+                    
+                    # Скалярное произведение с градиентом от следующего слоя
+                    grad_input[i,j,k] = torch.sum(grad_output * diff)
+                    
+        return grad_input, None
+
+# ===================================================================
+# Класс TopologicalQuantization (для топологического квантования)
+# ===================================================================
+class TopologicalQuantization(nn.Module):
+    """Реализация топологического квантования H_k(M) ⊗ ℋ_k"""
+    
+    def __init__(self, betti_numbers: Dict[int, int], n_qubits_per_dim: int = 2):
+        super().__init__()
+        self.betti_numbers = betti_numbers
+        self.n_qubits_per_dim = n_qubits_per_dim
+        
+        # Инициализация квантовых состояний для каждой размерности
+        self.hilbert_spaces = nn.ModuleDict({
+            str(dim): QuantumHilbertSpace(count, n_qubits_per_dim)
+            for dim, count in betti_numbers.items()
+        })
+        
+        # Матрица смежности для топологических связей
+        self.adjacency = self._build_topological_adjacency()
+        
+    def _build_topological_adjacency(self) -> torch.Tensor:
+        """Строит матрицу смежности между пространствами разных размерностей"""
+        dims = sorted(list(self.betti_numbers.keys()))
+        n_dims = len(dims)
+        adj = torch.zeros((n_dims, n_dims))
+        
+        for i in range(n_dims-1):
+            if dims[i+1] - dims[i] == 1:  # Связываем только соседние размерности
+                adj[i,i+1] = 1
+                adj[i+1,i] = 1
+                
+        return adj
+    
+    def forward(self, persistence_diagrams: List[np.ndarray]) -> torch.Tensor:
+        """
+        Применяет топологическое квантование к персистентным диаграммам
+        Возвращает тензор квантовых состояний размерности [n_dims, n_qubits, 2]
+        """
+        # Вычисляем среднюю персистенцию для каждого класса
+        persistence_avg = {}
+        for dim, diagram in enumerate(persistence_diagrams):
+            if len(diagram) > 0:
+                persistences = diagram[:,1] - diagram[:,0]
+                persistence_avg[dim] = np.mean(persistences)
+            else:
+                persistence_avg[dim] = 0.0
+                
+        # Нормализация
+        total_persistence = sum(persistence_avg.values())
+        if total_persistence > 0:
+            persistence_avg = {k: v/total_persistence for k, v in persistence_avg.items()}
+        
+        # Генерируем квантовые состояния
+        quantum_states = []
+        for dim, space in self.hilbert_spaces.items():
+            dim_int = int(dim)
+            amplitude = persistence_avg.get(dim_int, 0.0)
+            states = space(amplitude)
+            quantum_states.append(states)
+            
+        return torch.stack(quantum_states)
+
+# ===================================================================
+# Класс QuantumHilbertSpace (для топологического квантования)
+# ===================================================================
+class QuantumHilbertSpace(nn.Module):
+    """Реализация гильбертова пространства ℋ_k для k-мерных классов"""
+    
+    def __init__(self, n_states: int, n_qubits: int = 2):
+        super().__init__()
+        self.n_states = n_states
+        self.n_qubits = n_qubits
+        
+        # Параметризованная квантовая схема
+        self.circuit = self._build_parameterized_circuit()
+        self.backend = Aer.get_backend('statevector_simulator')
+        
+    def _build_parameterized_circuit(self) -> QuantumCircuit:
+        """Строит параметризованную квантовую схему"""
+        qc = QuantumCircuit(self.n_qubits)
+        params = ParameterVector('θ', length=self.n_qubits*3)
+        
+        for i in range(self.n_qubits):
+            qc.rx(params[i*3], i)
+            qc.ry(params[i*3+1], i)
+            qc.rz(params[i*3+2], i)
+            
+        for i in range(self.n_qubits-1):
+            qc.cx(i, i+1)
+            
+        return qc
+    
+    def forward(self, amplitude: float) -> torch.Tensor:
+        """Генерирует квантовое состояние с заданной амплитудой"""
+        # Нормализация амплитуды
+        norm_amp = np.sqrt(amplitude) if amplitude > 0 else 0.0
+        
+        # Устанавливаем параметры схемы
+        params = np.arcsin(norm_amp) * np.random.randn(self.n_qubits*3)
+        bound_circuit = self.circuit.bind_parameters(params)
+        
+        # Выполняем схему
+        result = execute(bound_circuit, self.backend).result()
+        statevector = result.get_statevector()
+        
+        # Преобразуем в тензор PyTorch
+        state_tensor = torch.tensor([statevector.real, statevector.imag], dtype=torch.float32)
+        
+        return state_tensor
+
+# ===================================================================
+# Класс TopologicalEnsembleCoherence (для когерентности ансамбля)
+# ===================================================================
+class TopologicalEnsembleCoherence:
+    """Реализация когерентности ансамбля |Ψ⟩ = ∑ c_i |S_i⟩"""
+    
+    def __init__(self, base_system: 'EnhancedHypercubeX'):
+        self.base = base_system
+        self.systems = {}
+        self.coefficients = {}
+        
+    def add_system(self, system_id: str, system: 'EnhancedHypercubeX', coefficient: complex):
+        """Добавляет систему в суперпозицию"""
+        self.systems[system_id] = system
+        self.coefficients[system_id] = coefficient
+        self._normalize_coefficients()
+        
+    def _normalize_coefficients(self):
+        """Нормализует коэффициенты для сохранения ∑|c_i|² = 1"""
+        total = sum(abs(c)**2 for c in self.coefficients.values())
+        if total > 0:
+            self.coefficients = {k: v/np.sqrt(total) for k, v in self.coefficients.items()}
+        
+    def measure_observable(self, observable: callable) -> Dict[str, float]:
+        """Измеряет наблюдаемую величину в суперпозиции систем"""
+        results = {}
+        for system_id, system in self.systems.items():
+            c = self.coefficients[system_id]
+            value = observable(system)
+            results[system_id] = {
+                'value': value,
+                'weighted_value': abs(c)**2 * value,
+                'phase': np.angle(c)
+            }
+            
+        # Усреднение с учетом квантовой интерференции
+        total = sum(r['weighted_value'] for r in results.values())
+        interference = self._calculate_interference(observable)
+        
+        results['total'] = total + interference
+        return results
+    
+    def _calculate_interference(self, observable: callable) -> float:
+        """Вычисляет квантовую интерференцию между системами"""
+        if len(self.systems) < 2:
+            return 0.0
+            
+        # Используем квантовые состояния для вычисления перекрытия
+        states = []
+        for system_id, system in self.systems.items():
+            c = self.coefficients[system_id]
+            state = system.quantum_state * c
+            states.append(state)
+            
+        # Вычисляем интерференционные члены
+        interference = 0.0
+        for i in range(len(states)):
+            for j in range(i+1, len(states)):
+                overlap = torch.sum(states[i] * states[j].conj()).real
+                interference += 2 * overlap * observable(self.systems[i]) * observable(self.systems[j])
+                
+        return interference
