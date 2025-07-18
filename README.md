@@ -252,6 +252,7 @@ Scan the QR code below if you'd like to:
 
 ___
 <img width="212" height="212" alt="image" src="https://github.com/user-attachments/assets/9d40a983-67fb-4df6-a80e-d1e1ddd96e2d" />
+
 ___
 
 Приветствуются запросы на включение (pull requests). Основные направления для развития:
