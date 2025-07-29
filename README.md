@@ -1,8 +1,6 @@
-# [Hypercube-X](https://github.com/miroaleksej/Hypercube-X/blob/main/HyperCube-X.py): Квантово-топологическая система моделирования физических законов
+# Hypercube-X: Топологический и Градиентный Анализ Криптографических Систем
 
-## **Для правильной работы системы обязательно установите [hypercube_patch.py](https://github.com/miroaleksej/Hypercube-X/blob/main/hypercube_patch.md).**
-
-Временно приостанавливаю работу над всеми проектами в связи с отсутствием заинтересованности и обратной связи с Вашей стороны.
+## Временно приостанавливаю работу над всеми проектами в связи с отсутствием заинтересованности и обратной связи с Вашей стороны.
 
 <img width="1024" height="1024" alt="image" src="https://github.com/user-attachments/assets/02c71162-fda7-48cd-b7c6-53ab8235d196" />
 
@@ -25,8 +23,6 @@
   <img src="https://img.shields.io/github/last-commit/yourusername/qpp?color=blue" alt="last commit">
   <img src="https://img.shields.io/github/stars/yourusername/qpp?style=social" alt="stars">
 </p>
-
-# Hypercube-X: Топологический и Градиентный Анализ Криптографических Систем
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.8+](https://img.shields.io/badge/Python-3.8%2B-blue.svg)](https://www.python.org/downloads/)
